@@ -87,6 +87,27 @@ function findLocaleFilesWithExtension(ext: string) {
   return { patterns: [], defaultPatterns };
 }
 
+// function findLocaleFilesForFilename(fileName: string) {
+//   const pattern = fileName;
+//   const localeFiles = glob.sync(`**/${fileName}`, {
+//     ignore: ["node_modules/**", "package*.json", "i18n.json", "lingo.json"],
+//   });
+
+//   const localeFilesAndPatterns = localeFiles.map((file: string) => ({
+//     file,
+//     pattern: path.join(path.dirname(file), pattern),
+//   }));
+//   const grouppedFilesAndPatterns = _.groupBy(localeFilesAndPatterns, "pattern");
+//   const patterns = Object.keys(grouppedFilesAndPatterns);
+//   const defaultPatterns = [fileName];
+
+//   if (patterns.length > 0) {
+//     return { patterns, defaultPatterns };
+//   }
+
+//   return { patterns: [], defaultPatterns };
+// }
+
 function findLocaleFilesForFilename(fileName: string) {
   const pattern = fileName;
   const localeFiles = glob.sync(`**/${fileName}`, {
@@ -97,8 +118,13 @@ function findLocaleFilesForFilename(fileName: string) {
     file,
     pattern: path.join(path.dirname(file), pattern),
   }));
+
   const grouppedFilesAndPatterns = _.groupBy(localeFilesAndPatterns, "pattern");
-  const patterns = Object.keys(grouppedFilesAndPatterns);
+  let patterns = Object.keys(grouppedFilesAndPatterns);
+
+  // 🔥 FIX: Normalize Windows backslashes to POSIX slashes
+  patterns = patterns.map((p) => p.replace(/\\/g, "/"));
+
   const defaultPatterns = [fileName];
 
   if (patterns.length > 0) {

@@ -17,6 +17,7 @@ export const providerDetails: Record<
     getKeyLink: "https://groq.com",
     docsLink: "https://console.groq.com/docs/errors",
   },
+
   google: {
     name: "Google",
     apiKeyEnvVar: "GOOGLE_API_KEY",
@@ -24,6 +25,7 @@ export const providerDetails: Record<
     getKeyLink: "https://ai.google.dev/",
     docsLink: "https://ai.google.dev/gemini-api/docs/troubleshooting",
   },
+
   openai: {
     name: "OpenAI",
     apiKeyEnvVar: "OPENAI_API_KEY",
@@ -31,6 +33,7 @@ export const providerDetails: Record<
     getKeyLink: "https://platform.openai.com/account/api-keys",
     docsLink: "https://platform.openai.com/docs",
   },
+
   anthropic: {
     name: "Anthropic",
     apiKeyEnvVar: "ANTHROPIC_API_KEY",
@@ -38,6 +41,7 @@ export const providerDetails: Record<
     getKeyLink: "https://console.anthropic.com/get-api-key",
     docsLink: "https://console.anthropic.com/docs",
   },
+
   openrouter: {
     name: "OpenRouter",
     apiKeyEnvVar: "OPENROUTER_API_KEY",
@@ -45,6 +49,7 @@ export const providerDetails: Record<
     getKeyLink: "https://openrouter.ai",
     docsLink: "https://openrouter.ai/docs",
   },
+
   ollama: {
     name: "Ollama",
     apiKeyEnvVar: undefined, // Ollama doesn't require an API key
@@ -52,6 +57,7 @@ export const providerDetails: Record<
     getKeyLink: "https://ollama.com/download",
     docsLink: "https://github.com/ollama/ollama/tree/main/docs",
   },
+
   mistral: {
     name: "Mistral",
     apiKeyEnvVar: "MISTRAL_API_KEY",
@@ -59,6 +65,7 @@ export const providerDetails: Record<
     getKeyLink: "https://console.mistral.ai",
     docsLink: "https://docs.mistral.ai",
   },
+
   "lingo.dev": {
     name: "Lingo.dev",
     apiKeyEnvVar: "LINGODOTDEV_API_KEY",
