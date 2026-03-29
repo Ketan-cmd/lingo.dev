@@ -20,6 +20,10 @@ type BucketConfig = {
   ignoredKeys?: string[];
 };
 
+function toPosix(p: string): string {
+  return p.replace(/\\/g, "/");
+}
+
 export function getBuckets(i18nConfig: I18nConfig) {
   const result = Object.entries(i18nConfig.buckets).map(
     ([bucketType, bucketEntry]) => {
@@ -66,7 +70,7 @@ function extractPathPatterns(
       pattern.path,
       resolveOverriddenLocale(sourceLocale, pattern.delimiter),
     ).map((pathPattern) => ({
-      pathPattern,
+      pathPattern: toPosix(pathPattern), // ✅ FIX APPLIED HERE
       delimiter: pattern.delimiter,
     })),
   );
@@ -75,7 +79,7 @@ function extractPathPatterns(
       pattern.path,
       resolveOverriddenLocale(sourceLocale, pattern.delimiter),
     ).map((pathPattern) => ({
-      pathPattern,
+      pathPattern: toPosix(pathPattern), // ✅ FIX APPLIED HERE
       delimiter: pattern.delimiter,
     })),
   );
@@ -90,11 +94,9 @@ function extractPathPatterns(
 // Windows path normalization helper function
 function normalizePath(filepath: string): string {
   const normalized = path.normalize(filepath);
-  // Ensure case consistency on Windows
   return process.platform === "win32" ? normalized.toLowerCase() : normalized;
 }
 
-// Path expansion
 function expandPlaceholderedGlob(
   _pathPattern: string,
   sourceLocale: string,
@@ -110,7 +112,6 @@ function expandPlaceholderedGlob(
     });
   }
 
-  // Throw error if pathPattern contains "**" – we don't support recursive path patterns
   if (pathPattern.includes("**")) {
     throw new CLIError({
       message: `Invalid path pattern: ${pathPattern}. Recursive path patterns are not supported.`,
@@ -118,9 +119,8 @@ function expandPlaceholderedGlob(
     });
   }
 
-  // Break down path pattern into parts
   const pathPatternChunks = pathPattern.split(path.sep);
-  // Find the index of the segment containing "[locale]"
+
   const localeSegmentIndexes = pathPatternChunks.reduce(
     (indexes, segment, index) => {
       if (segment.includes("[locale]")) {
@@ -130,31 +130,27 @@ function expandPlaceholderedGlob(
     },
     [] as number[],
   );
-  // substitute [locale] in pathPattern with sourceLocale
+
   const sourcePathPattern = pathPattern.replaceAll(/\[locale\]/g, sourceLocale);
-  // Convert to Unix-style for Windows compatibility
+
   const unixStylePattern = sourcePathPattern.replace(/\\/g, "/");
 
-  // get all files that match the sourcePathPattern
   const sourcePaths = glob
     .sync(unixStylePattern, {
       follow: true,
       withFileTypes: true,
-      windowsPathsNoEscape: true, // Windows path support
+      windowsPathsNoEscape: true,
     })
     .filter((file) => file.isFile() || file.isSymbolicLink())
     .map((file) => file.fullpath())
     .map((fullpath) => normalizePath(path.relative(process.cwd(), fullpath)));
 
-  // transform each source file path back to [locale] placeholder paths
   const placeholderedPaths = sourcePaths.map((sourcePath) => {
-    // Normalize path returned by glob for platform compatibility
     const normalizedSourcePath = normalizePath(
       sourcePath.replace(/\//g, path.sep),
     );
     const sourcePathChunks = normalizedSourcePath.split(path.sep);
     localeSegmentIndexes.forEach((localeSegmentIndex) => {
-      // Find the position of the "[locale]" placeholder within the segment
       const pathPatternChunk = pathPatternChunks[localeSegmentIndex];
       const sourcePathChunk = sourcePathChunks[localeSegmentIndex];
       const regexp = new RegExp(
@@ -172,10 +168,9 @@ function expandPlaceholderedGlob(
         sourcePathChunks[localeSegmentIndex] = placeholderedSegment;
       }
     });
-    const placeholderedPath = sourcePathChunks.join(path.sep);
-    return placeholderedPath;
+    return sourcePathChunks.join(path.sep);
   });
-  // return the placeholdered paths
+
   return placeholderedPaths;
 }
 
